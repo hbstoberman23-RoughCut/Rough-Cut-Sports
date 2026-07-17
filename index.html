@@ -1,11 +1,206 @@
-<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'><title>Rough Cut Sports</title><link rel='manifest' href='manifest.webmanifest'><meta name='theme-color' content='#e87500'><meta name='apple-mobile-web-app-capable' content='yes'><style>body{margin:0;font-family:Arial;background:#0d0d0d;color:#fff}header{background:#080808;border-bottom:3px solid #e87500;padding:14px;position:sticky;top:0}h1{margin:0;font-size:21px}nav{display:flex;gap:7px;overflow:auto;margin-top:10px}button{background:#e87500;color:#fff;border:0;border-radius:7px;padding:10px 12px;font-weight:700}main{padding:16px;max-width:1100px;margin:auto}.card{background:#181818;border:1px solid #3a3a3a;border-radius:10px;padding:14px;margin-bottom:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}section{display:none}section.active{display:block}input,select,textarea{width:100%;box-sizing:border-box;background:#101010;color:#fff;border:1px solid #444;border-radius:7px;padding:10px;margin:5px 0 10px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #3a3a3a;padding:8px;font-size:13px}th{background:#252525}.stat{font-size:30px;color:#e87500;font-weight:900}.row{display:flex;gap:8px;flex-wrap:wrap}.hidden{display:none}.score{font-size:44px;font-weight:900}.scoreboard{display:grid;grid-template-columns:1fr auto 1fr;text-align:center;align-items:center;gap:10px}.badge{padding:3px 7px;border-radius:99px;background:#333;font-size:11px}.good{background:#237a43}.bad{background:#9e3131}</style></head><body><header><h1>ROUGH CUT SPORTS</h1><div style='color:#bbb;font-size:12px'>Baseball • Fastpitch • Slowpitch</div><nav><button onclick="tab('dash')">Dashboard</button><button onclick="tab('setup')">Create Event</button><button onclick="tab('teams')">Teams</button><button onclick="tab('schedule')">Schedule</button><button onclick="tab('score')">Scoring</button><button onclick="tab('standings')">Standings</button><button onclick="tab('finance')">Finance</button></nav></header><main>
-<section id='dash' class='active'><div class='grid'><div class='card'><h3>Sport</h3><div id='dSport' class='stat'>—</div></div><div class='card'><h3>Teams</h3><div id='dTeams' class='stat'>0</div></div><div class='card'><h3>Games</h3><div id='dGames' class='stat'>0</div></div><div class='card'><h3>Collected</h3><div id='dMoney' class='stat'>$0</div></div></div><div class='card'><h2 id='eventTitle'>Create Your First Event</h2><p id='eventMeta'>Choose a sport and set up the event.</p><div class='row'><button onclick='backup()'>Export Backup</button><label style='background:#333;padding:10px 12px;border-radius:7px;font-weight:700'>Import Backup<input type='file' accept='.json' onchange='restore(event)' style='display:none'></label></div></div></section>
-<section id='setup'><div class='card'><h2>Event Setup</h2><select id='sport' onchange='toggleSport()'><option value=''>Choose Sport</option><option value='baseball'>Baseball</option><option value='fastpitch'>Fastpitch</option><option value='slowpitch'>Slowpitch</option></select><input id='name' placeholder='Event name'><input id='date' type='date'><input id='location' placeholder='Location'><input id='division' placeholder='Division / age group'><select id='format'><option>Pool Play + Bracket</option><option>Round Robin</option><option>Single Elimination</option><option>Double Elimination</option></select><input id='length' type='number' value='60' placeholder='Game length minutes'><input id='fields' type='number' value='2' placeholder='Fields'><input id='start' type='time' value='08:00'><div id='pitchWrap' class='hidden'><input id='pitchLimit' type='number' value='85' placeholder='Pitch limit'></div><div id='hrWrap' class='hidden'><input id='hrLimit' type='number' value='5' placeholder='Home run limit'><input id='arc' placeholder='Arc / rule notes'></div><textarea id='rules' placeholder='Rules and director notes'></textarea><button onclick='saveSetup()'>Save Event</button></div></section>
-<section id='teams'><div class='grid'><div class='card'><h2>Add Team</h2><input id='teamName' placeholder='Team name'><input id='manager' placeholder='Manager'><input id='city' placeholder='City'><input id='fee' type='number' placeholder='Entry fee'><input id='paid' type='number' placeholder='Amount paid'><button onclick='addTeam()'>Add Team</button></div><div class='card'><h2>Registered Teams</h2><table><thead><tr><th>Team</th><th>Manager</th><th>City</th><th>Fee</th><th>Paid</th><th>Status</th><th></th></tr></thead><tbody id='teamRows'></tbody></table></div></div></section>
-<section id='schedule'><div class='card'><h2>Auto Schedule</h2><p>Creates a round-robin schedule using your teams, fields, start time, and game length.</p><button onclick='genSchedule()'>Generate Schedule</button> <button onclick='clearSchedule()' style='background:#9e3131'>Clear</button></div><div class='card'><table><thead><tr><th>#</th><th>Time</th><th>Field</th><th>Matchup</th><th>Status</th></tr></thead><tbody id='scheduleRows'></tbody></table></div></section>
-<section id='score'><div class='card'><h2>Game Center</h2><select id='gameSelect' onchange='loadGame()'></select></div><div id='scorePanel' class='card hidden'><div class='scoreboard'><div><h3 id='homeName'>Home</h3><div id='homeScore' class='score'>0</div><button onclick="chg('home',1)">+1</button> <button onclick="chg('home',-1)" style='background:#333'>-1</button></div><div><div id='inning'>Top 1</div><button onclick='advance()' style='margin-top:8px;background:#246d9e'>Advance</button></div><div><h3 id='awayName'>Away</h3><div id='awayScore' class='score'>0</div><button onclick="chg('away',1)">+1</button> <button onclick="chg('away',-1)" style='background:#333'>-1</button></div></div><div id='pitchBox' class='hidden'><h3>Pitch Counts</h3><input id='homePitches' type='number' value='0'><input id='awayPitches' type='number' value='0'></div><div id='hrBox' class='hidden'><h3>Home Runs</h3><input id='homeHR' type='number' value='0'><input id='awayHR' type='number' value='0'></div><button onclick='saveGame()'>Save Progress</button> <button onclick='finalGame()' style='background:#237a43'>Finalize</button></div></section>
-<section id='standings'><div class='card'><h2>Standings</h2><table><thead><tr><th>Seed</th><th>Team</th><th>W</th><th>L</th><th>RF</th><th>RA</th><th>Diff</th><th>Win %</th></tr></thead><tbody id='standingRows'></tbody></table></div></section>
-<section id='finance'><div class='grid'><div class='card'><h2>Collected</h2><div id='fCollected' class='stat'>$0</div><p>Outstanding: <b id='fDue'>$0</b></p></div><div class='card'><h2>Add Expense</h2><input id='expenseName' placeholder='Expense'><input id='expenseAmount' type='number' placeholder='Amount'><button onclick='addExpense()'>Add</button></div><div class='card'><h2>Profit</h2><div id='profit' class='stat'>$0</div><table><tbody id='expenseRows'></tbody></table></div></div></section>
-</main><script>
-let db=JSON.parse(localStorage.getItem('rcsports'))||{setup:{sport:'',name:'',date:'',location:'',division:'',format:'Pool Play + Bracket',length:60,fields:2,start:'08:00',pitchLimit:85,hrLimit:5,arc:'',rules:''},teams:[],games:[],expenses:[]};let current=null;const $=x=>document.getElementById(x);function save(){localStorage.setItem('rcsports',JSON.stringify(db));render()}function tab(id){document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');render()}function money(n){return '$'+(Number(n)||0).toFixed(2)}function team(id){return db.teams.find(t=>t.id===id)}function sname(){return db.setup.sport==='baseball'?'Baseball':db.setup.sport==='fastpitch'?'Fastpitch':db.setup.sport==='slowpitch'?'Slowpitch':'—'}function toggleSport(){$('pitchWrap').classList.toggle('hidden',!['baseball','fastpitch'].includes($('sport').value));$('hrWrap').classList.toggle('hidden',$('sport').value!=='slowpitch')}function saveSetup(){db.setup={sport:$('sport').value,name:$('name').value,date:$('date').value,location:$('location').value,division:$('division').value,format:$('format').value,length:+$('length').value||60,fields:+$('fields').value||1,start:$('start').value||'08:00',pitchLimit:+$('pitchLimit').value||85,hrLimit:+$('hrLimit').value||5,arc:$('arc').value,rules:$('rules').value};if(!db.setup.sport)return alert('Choose a sport');save();alert('Event saved')}function addTeam(){if(!$('teamName').value.trim())return alert('Enter team name');db.teams.push({id:crypto.randomUUID(),name:$('teamName').value.trim(),manager:$('manager').value,city:$('city').value,fee:+$('fee').value||0,paid:+$('paid').value||0});['teamName','manager','city','fee','paid'].forEach(x=>$(x).value='');save()}function delTeam(id){db.teams=db.teams.filter(t=>t.id!==id);db.games=db.games.filter(g=>g.home!==id&&g.away!==id);save()}function genSchedule(){if(db.teams.length<2)return alert('Add at least 2 teams');let pairs=[];for(let i=0;i<db.teams.length;i++)for(let j=i+1;j<db.teams.length;j++)pairs.push([db.teams[i],db.teams[j]]);let [h,m]=db.setup.start.split(':').map(Number),base=new Date(2000,0,1,h,m);db.games=pairs.map((p,i)=>{let slot=Math.floor(i/db.setup.fields),t=new Date(base.getTime()+slot*db.setup.length*60000);return{id:crypto.randomUUID(),home:p[0].id,away:p[1].id,time:t.toTimeString().slice(0,5),field:'Field '+((i%db.setup.fields)+1),status:'Scheduled',homeScore:0,awayScore:0,half:'Top',inning:1,homePitches:0,awayPitches:0,homeHR:0,awayHR:0}});save()}function clearSchedule(){if(confirm('Clear schedule and scores?')){db.games=[];save()}}function loadGame(){current=$('gameSelect').value;let g=db.games.find(x=>x.id===current);$('scorePanel').classList.toggle('hidden',!g);if(!g)return;$('homeName').textContent=team(g.home)?.name||'Home';$('awayName').textContent=team(g.away)?.name||'Away';$('homeScore').textContent=g.homeScore;$('awayScore').textContent=g.awayScore;$('inning').textContent=g.half+' '+g.inning;$('pitchBox').classList.toggle('hidden',!['baseball','fastpitch'].includes(db.setup.sport));$('hrBox').classList.toggle('hidden',db.setup.sport!=='slowpitch');$('homePitches').value=g.homePitches||0;$('awayPitches').value=g.awayPitches||0;$('homeHR').value=g.homeHR||0;$('awayHR').value=g.awayHR||0}function chg(side,d){let g=db.games.find(x=>x.id===current);if(!g)return;let k=side+'Score';g[k]=Math.max(0,g[k]+d);loadGame()}function advance(){let g=db.games.find(x=>x.id===current);if(g.half==='Top')g.half='Bottom';else{g.half='Top';g.inning++}loadGame()}function saveGame(){let g=db.games.find(x=>x.id===current);if(!g)return;g.homePitches=+$('homePitches').value||0;g.awayPitches=+$('awayPitches').value||0;g.homeHR=+$('homeHR').value||0;g.awayHR=+$('awayHR').value||0;save();alert('Saved')}function finalGame(){let g=db.games.find(x=>x.id===current);if(!g)return;saveGame();g.status='Final';save();alert('Finalized')}function standings(){let s={};db.teams.forEach(t=>s[t.id]={name:t.name,w:0,l:0,rf:0,ra:0});db.games.filter(g=>g.status==='Final').forEach(g=>{if(!s[g.home]||!s[g.away])return;s[g.home].rf+=g.homeScore;s[g.home].ra+=g.awayScore;s[g.away].rf+=g.awayScore;s[g.away].ra+=g.homeScore;if(g.homeScore>g.awayScore){s[g.home].w++;s[g.away].l++}else if(g.awayScore>g.homeScore){s[g.away].w++;s[g.home].l++}});return Object.values(s).map(x=>({...x,diff:x.rf-x.ra,pct:(x.w+x.l)?x.w/(x.w+x.l):0})).sort((a,b)=>b.pct-a.pct||b.diff-a.diff||b.rf-a.rf)}function addExpense(){if(!$('expenseName').value||!+$('expenseAmount').value)return alert('Enter expense');db.expenses.push({id:crypto.randomUUID(),name:$('expenseName').value,amount:+$('expenseAmount').value});$('expenseName').value='';$('expenseAmount').value='';save()}function delExpense(id){db.expenses=db.expenses.filter(e=>e.id!==id);save()}function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}));a.download='rough-cut-sports-backup.json';a.click()}function restore(e){let r=new FileReader();r.onload=()=>{try{db=JSON.parse(r.result);save();alert('Imported')}catch{alert('Invalid file')}};r.readAsText(e.target.files[0])}function render(){$('dSport').textContent=sname();$('dTeams').textContent=db.teams.length;$('dGames').textContent=db.games.length;let collected=db.teams.reduce((a,t)=>a+t.paid,0),fees=db.teams.reduce((a,t)=>a+t.fee,0);$('dMoney').textContent=money(collected);$('eventTitle').textContent=db.setup.name||'Create Your First Event';$('eventMeta').textContent=[sname(),db.setup.date,db.setup.location,db.setup.division,db.setup.format].filter(x=>x&&x!=='—').join(' • ')||'Choose a sport and set up the event.';['sport','name','date','location','division','format','length','fields','start','pitchLimit','hrLimit','arc','rules'].forEach(id=>{if($(id))$(id).value=db.setup[id]??''});toggleSport();$('teamRows').innerHTML=db.teams.map(t=>`<tr><td>${t.name}</td><td>${t.manager}</td><td>${t.city}</td><td>${money(t.fee)}</td><td>${money(t.paid)}</td><td><span class='badge ${t.paid>=t.fee?'good':'bad'}'>${t.paid>=t.fee?'Paid':'Due '+money(t.fee-t.paid)}</span></td><td><button onclick="delTeam('${t.id}')" style='background:#9e3131'>X</button></td></tr>`).join('');$('scheduleRows').innerHTML=db.games.map((g,i)=>`<tr><td>${i+1}</td><td>${g.time}</td><td>${g.field}</td><td>${team(g.home)?.name||''} vs ${team(g.away)?.name||''}</td><td>${g.status}</td></tr>`).join('');$('gameSelect').innerHTML='<option value="">Choose game</option>'+db.games.map((g,i)=>`<option value='${g.id}'>Game ${i+1}: ${team(g.home)?.name||''} vs ${team(g.away)?.name||''}</option>`).join('');$('standingRows').innerHTML=standings().map((x,i)=>`<tr><td>${i+1}</td><td>${x.name}</td><td>${x.w}</td><td>${x.l}</td><td>${x.rf}</td><td>${x.ra}</td><td>${x.diff}</td><td>${(x.pct*100).toFixed(1)}%</td></tr>`).join('');let exp=db.expenses.reduce((a,e)=>a+e.amount,0);$('fCollected').textContent=money(collected);$('fDue').textContent=money(fees-collected);$('profit').textContent=money(collected-exp);$('expenseRows').innerHTML=db.expenses.map(e=>`<tr><td>${e.name}</td><td>${money(e.amount)}</td><td><button onclick="delExpense('${e.id}')" style='background:#9e3131'>X</button></td></tr>`).join('')}render();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js'));
-</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rough Cut Sports</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#e87500">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rough Cut Sports">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#0b0b0b;--panel:#171717;--panel2:#222;--line:#383838;--orange:#e87500;--text:#f5f5f5;--muted:#aaa;--green:#237a43;--red:#9d3030;--blue:#286b9b}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+header{position:sticky;top:0;z-index:50;padding:14px 15px;background:#070707;border-bottom:3px solid var(--orange)}
+.brand{display:flex;gap:11px;align-items:center}.logo{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--orange);color:#111;font-weight:900}
+h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted)}
+nav{display:flex;gap:7px;overflow:auto;margin-top:11px;padding-bottom:2px}
+button,.button{border:0;border-radius:7px;padding:10px 13px;background:var(--orange);color:#fff;font-weight:800;cursor:pointer;white-space:nowrap}
+button.secondary{background:#333}button.danger{background:var(--red)}button.blue{background:var(--blue)}
+main{max-width:1250px;margin:auto;padding:15px}section{display:none}section.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px}.card h2,.card h3{margin-top:0}
+.stat{font-size:30px;font-weight:900;color:var(--orange)}.notice{font-size:12px;color:var(--muted)}
+input,select,textarea{width:100%;padding:10px;margin-bottom:10px;border:1px solid #444;border-radius:7px;background:#101010;color:#fff}
+textarea{min-height:90px}label{display:block;font-size:12px;color:var(--muted);margin:4px 0}
+table{width:100%;border-collapse:collapse}th,td{border:1px solid var(--line);padding:8px;text-align:left;font-size:13px}th{background:var(--panel2)}
+.badge{display:inline-block;padding:4px 8px;border-radius:99px;font-size:11px;font-weight:800;background:#333}.good{background:var(--green)}.bad{background:var(--red)}.bluebadge{background:var(--blue)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.hidden{display:none!important}
+.event-card{cursor:pointer;border:2px solid transparent}.event-card.active-event{border-color:var(--orange)}
+.scoreboard{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}.score{font-size:48px;font-weight:900}
+.bracket{display:flex;gap:24px;overflow:auto;padding:8px}.round{min-width:220px}.match{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px;margin:14px 0}
+@media(max-width:650px){th,td{font-size:11px;padding:6px}.score{font-size:40px}}
+@media print{header,.no-print{display:none!important}body{background:#fff;color:#000}main{max-width:none;padding:0}section{display:none!important}section.active{display:block!important}.card,table{background:#fff;color:#000;border-color:#aaa}th{background:#eee;color:#000}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">RC</div><div><h1>ROUGH CUT SPORTS</h1><div class="sub">Build 2 • Multi-Tournament Manager</div></div></div>
+  <nav>
+    <button onclick="tab('home')">My Events</button>
+    <button onclick="tab('dashboard')">Dashboard</button>
+    <button onclick="tab('setup')">Event Setup</button>
+    <button onclick="tab('teams')">Teams</button>
+    <button onclick="tab('schedule')">Schedule</button>
+    <button onclick="tab('scoring')">Scoring</button>
+    <button onclick="tab('standings')">Standings</button>
+    <button onclick="tab('bracket')">Bracket</button>
+    <button onclick="tab('finance')">Finance</button>
+  </nav>
+</header>
+<main>
+
+<section id="home" class="active">
+  <div class="card no-print">
+    <h2>Create Tournament or League</h2>
+    <div class="grid">
+      <div><label>Event Name</label><input id="quickName" placeholder="Labor Day Classic"></div>
+      <div><label>Sport</label><select id="quickSport"><option value="slowpitch">Slowpitch</option><option value="baseball">Baseball</option><option value="fastpitch">Fastpitch</option></select></div>
+      <div><label>Date</label><input id="quickDate" type="date"></div>
+      <div><label>Location</label><input id="quickLocation" placeholder="Don Bragg Fields"></div>
+    </div>
+    <button onclick="createEvent()">Create Event</button>
+  </div>
+  <h2>My Events</h2>
+  <div id="eventCards" class="grid"></div>
+</section>
+
+<section id="dashboard">
+  <div id="noEventDash" class="card"><h2>No event selected</h2><p>Open or create an event from My Events.</p></div>
+  <div id="dashContent" class="hidden">
+    <div class="grid">
+      <div class="card"><h3>Sport</h3><div id="dashSport" class="stat">—</div></div>
+      <div class="card"><h3>Teams</h3><div id="dashTeams" class="stat">0</div></div>
+      <div class="card"><h3>Games</h3><div id="dashGames" class="stat">0</div></div>
+      <div class="card"><h3>Collected</h3><div id="dashCollected" class="stat">$0</div></div>
+    </div>
+    <div class="card" style="margin-top:14px"><h2 id="eventTitle"></h2><p id="eventMeta" class="notice"></p>
+      <div class="actions no-print"><button onclick="window.print()">Print Page</button><button class="secondary" onclick="exportBackup()">Export All Data</button><label class="button secondary" style="margin:0">Import Backup<input type="file" accept=".json" style="display:none" onchange="importBackup(event)"></label></div>
+    </div>
+  </div>
+</section>
+
+<section id="setup">
+  <div id="setupNoEvent" class="card"><h2>Select an event first</h2></div>
+  <div id="setupForm" class="card hidden">
+    <h2>Event Setup</h2>
+    <div class="grid">
+      <div><label>Event Name</label><input id="eventName"></div>
+      <div><label>Sport</label><select id="eventSport"><option value="slowpitch">Slowpitch</option><option value="baseball">Baseball</option><option value="fastpitch">Fastpitch</option></select></div>
+      <div><label>Date</label><input id="eventDate" type="date"></div>
+      <div><label>Location</label><input id="eventLocation"></div>
+      <div><label>Division / Age</label><input id="eventDivision"></div>
+      <div><label>Format</label><select id="eventFormat"><option>Pool Play + Bracket</option><option>Round Robin</option><option>Single Elimination</option><option>Double Elimination</option><option>League Play</option></select></div>
+      <div><label>Game Length</label><input id="gameLength" type="number"></div>
+      <div><label>Fields</label><input id="fieldCount" type="number"></div>
+      <div><label>Start Time</label><input id="startTime" type="time"></div>
+    </div>
+    <label>Rules / Notes</label><textarea id="eventRules"></textarea>
+    <button onclick="saveSetup()">Save Changes</button>
+  </div>
+</section>
+
+<section id="teams">
+  <div class="grid">
+    <div class="card no-print"><h2>Add Team</h2>
+      <input id="teamName" placeholder="Team name"><input id="managerName" placeholder="Manager"><input id="managerPhone" placeholder="Phone"><input id="teamCity" placeholder="City"><input id="teamFee" type="number" placeholder="Entry fee"><input id="teamPaid" type="number" placeholder="Amount paid">
+      <button onclick="addTeam()">Add Team</button>
+    </div>
+    <div class="card"><h2>Registered Teams</h2><div style="overflow:auto"><table><thead><tr><th>Team</th><th>Manager</th><th>City</th><th>Fee</th><th>Paid</th><th>Status</th><th class="no-print">Action</th></tr></thead><tbody id="teamRows"></tbody></table></div></div>
+  </div>
+</section>
+
+<section id="schedule">
+  <div class="grid">
+    <div class="card no-print"><h2>Schedule Builder</h2><p class="notice">Auto-build a round-robin schedule or add individual games.</p><button onclick="generateSchedule()">Auto Generate</button><button class="secondary" onclick="showManualGame()">Add Manual Game</button><button class="danger" onclick="clearSchedule()">Clear</button>
+      <div id="manualGameBox" class="hidden" style="margin-top:12px"><select id="manualHome"></select><select id="manualAway"></select><input id="manualTime" type="time"><input id="manualField" placeholder="Field 1"><button onclick="addManualGame()">Save Game</button></div>
+    </div>
+    <div class="card"><h2>Game Schedule</h2><div style="overflow:auto"><table><thead><tr><th>#</th><th>Time</th><th>Field</th><th>Matchup</th><th>Status</th><th class="no-print">Action</th></tr></thead><tbody id="scheduleRows"></tbody></table></div></div>
+  </div>
+</section>
+
+<section id="scoring">
+  <div class="card no-print"><h2>Game Center</h2><select id="scoreGame" onchange="loadScoreGame()"></select></div>
+  <div id="scorePanel" class="card hidden">
+    <div class="scoreboard">
+      <div><h3 id="homeName"></h3><div id="homeScore" class="score">0</div><button onclick="changeScore('home',1)">+1</button><button class="secondary" onclick="changeScore('home',-1)">-1</button></div>
+      <div><div id="inningLabel" class="notice">Top 1</div><button class="blue" onclick="advanceInning()">Advance</button></div>
+      <div><h3 id="awayName"></h3><div id="awayScore" class="score">0</div><button onclick="changeScore('away',1)">+1</button><button class="secondary" onclick="changeScore('away',-1)">-1</button></div>
+    </div>
+    <div class="actions no-print" style="margin-top:14px"><button onclick="saveCurrentScore()">Save Progress</button><button class="blue" onclick="finalizeGame()">Finalize Game</button></div>
+  </div>
+</section>
+
+<section id="standings"><div class="card"><h2>Standings</h2><table><thead><tr><th>Seed</th><th>Team</th><th>W</th><th>L</th><th>RF</th><th>RA</th><th>Diff</th><th>Win %</th></tr></thead><tbody id="standingRows"></tbody></table><button class="no-print" style="margin-top:10px" onclick="exportStandings()">Export CSV</button></div></section>
+
+<section id="bracket"><div class="card no-print"><h2>Bracket Generator</h2><button onclick="generateBracket()">Generate Seeded Single Elimination</button></div><div id="bracketView" class="bracket"></div></section>
+
+<section id="finance">
+  <div class="grid">
+    <div class="card"><h2>Collected</h2><div id="financeCollected" class="stat">$0</div><p>Outstanding: <strong id="financeDue">$0</strong></p></div>
+    <div class="card no-print"><h2>Add Expense</h2><input id="expenseName" placeholder="Expense"><input id="expenseAmount" type="number" placeholder="Amount"><button onclick="addExpense()">Add</button></div>
+    <div class="card"><h2>Profit</h2><div id="financeProfit" class="stat">$0</div><table><thead><tr><th>Expense</th><th>Amount</th><th class="no-print">Action</th></tr></thead><tbody id="expenseRows"></tbody></table></div>
+  </div>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id), uid=()=>crypto.randomUUID();
+let db=JSON.parse(localStorage.getItem('roughCutSportsBuild2'))||{activeEventId:null,events:[]};
+let currentGameId=null;
+function persist(){localStorage.setItem('roughCutSportsBuild2',JSON.stringify(db));render()}
+function current(){return db.events.find(e=>e.id===db.activeEventId)||null}
+function money(n){return '$'+(Number(n)||0).toFixed(2)}
+function tab(id){document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');render()}
+function sportName(s){return s==='baseball'?'Baseball':s==='fastpitch'?'Fastpitch':'Slowpitch'}
+function createEvent(){
+ const name=$('quickName').value.trim(); if(!name)return alert('Enter an event name.');
+ const e={id:uid(),setup:{name,sport:$('quickSport').value,date:$('quickDate').value,location:$('quickLocation').value.trim(),division:'',format:'Pool Play + Bracket',gameLength:60,fieldCount:2,startTime:'08:00',rules:''},teams:[],games:[],expenses:[]};
+ db.events.push(e);db.activeEventId=e.id;['quickName','quickDate','quickLocation'].forEach(x=>$(x).value='');persist();tab('dashboard')
+}
+function openEvent(id){db.activeEventId=id;persist();tab('dashboard')}
+function duplicateEvent(id){const e=db.events.find(x=>x.id===id);if(!e)return;const copy=JSON.parse(JSON.stringify(e));copy.id=uid();copy.setup.name+=' Copy';copy.teams.forEach(t=>t.id=uid());copy.games=[];copy.expenses=[];db.events.push(copy);persist()}
+function deleteEvent(id){if(!confirm('Delete this entire event?'))return;db.events=db.events.filter(e=>e.id!==id);if(db.activeEventId===id)db.activeEventId=null;persist()}
+function saveSetup(){const e=current();if(!e)return;Object.assign(e.setup,{name:$('eventName').value.trim(),sport:$('eventSport').value,date:$('eventDate').value,location:$('eventLocation').value.trim(),division:$('eventDivision').value.trim(),format:$('eventFormat').value,gameLength:Number($('gameLength').value)||60,fieldCount:Number($('fieldCount').value)||1,startTime:$('startTime').value||'08:00',rules:$('eventRules').value.trim()});persist();alert('Event updated.')}
+function addTeam(){const e=current();if(!e)return alert('Select an event.');const name=$('teamName').value.trim();if(!name)return alert('Enter team name.');e.teams.push({id:uid(),name,manager:$('managerName').value.trim(),phone:$('managerPhone').value.trim(),city:$('teamCity').value.trim(),fee:Number($('teamFee').value)||0,paid:Number($('teamPaid').value)||0});['teamName','managerName','managerPhone','teamCity','teamFee','teamPaid'].forEach(x=>$(x).value='');persist()}
+function deleteTeam(id){const e=current();if(!e||!confirm('Delete team and its games?'))return;e.teams=e.teams.filter(t=>t.id!==id);e.games=e.games.filter(g=>g.home!==id&&g.away!==id);persist()}
+function team(e,id){return e.teams.find(t=>t.id===id)}
+function generateSchedule(){const e=current();if(!e||e.teams.length<2)return alert('Add at least two teams.');const pairs=[];for(let i=0;i<e.teams.length;i++)for(let j=i+1;j<e.teams.length;j++)pairs.push([e.teams[i],e.teams[j]]);const [h,m]=e.setup.startTime.split(':').map(Number),base=new Date(2000,0,1,h,m);e.games=pairs.map((p,i)=>{const slot=Math.floor(i/e.setup.fieldCount),field=i%e.setup.fieldCount+1,time=new Date(base.getTime()+slot*e.setup.gameLength*60000);return{id:uid(),home:p[0].id,away:p[1].id,time:time.toTimeString().slice(0,5),field:'Field '+field,status:'Scheduled',homeScore:0,awayScore:0,inning:1,half:'Top'}});persist()}
+function showManualGame(){$('manualGameBox').classList.toggle('hidden')}
+function addManualGame(){const e=current(),h=$('manualHome').value,a=$('manualAway').value;if(!e||!h||!a||h===a)return alert('Choose two different teams.');e.games.push({id:uid(),home:h,away:a,time:$('manualTime').value||'',field:$('manualField').value.trim()||'Field 1',status:'Scheduled',homeScore:0,awayScore:0,inning:1,half:'Top'});persist()}
+function deleteGame(id){const e=current();if(!e)return;e.games=e.games.filter(g=>g.id!==id);persist()}
+function clearSchedule(){const e=current();if(e&&confirm('Clear all games and scores?')){e.games=[];persist()}}
+function loadScoreGame(){currentGameId=$('scoreGame').value||null;const e=current(),g=e?.games.find(x=>x.id===currentGameId);$('scorePanel').classList.toggle('hidden',!g);if(!g)return;$('homeName').textContent=team(e,g.home)?.name||'Home';$('awayName').textContent=team(e,g.away)?.name||'Away';$('homeScore').textContent=g.homeScore;$('awayScore').textContent=g.awayScore;$('inningLabel').textContent=g.half+' '+g.inning}
+function changeScore(side,d){const e=current(),g=e?.games.find(x=>x.id===currentGameId);if(!g)return;g[side+'Score']=Math.max(0,g[side+'Score']+d);loadScoreGame()}
+function advanceInning(){const e=current(),g=e?.games.find(x=>x.id===currentGameId);if(!g)return;if(g.half==='Top')g.half='Bottom';else{g.half='Top';g.inning++}loadScoreGame()}
+function saveCurrentScore(){persist();alert('Score saved.')}
+function finalizeGame(){const e=current(),g=e?.games.find(x=>x.id===currentGameId);if(!g)return;if(g.homeScore===g.awayScore&&!confirm('Finalize tied game?'))return;g.status='Final';persist();alert('Game finalized.')}
+function standings(){const e=current();if(!e)return[];const s={};e.teams.forEach(t=>s[t.id]={id:t.id,name:t.name,w:0,l:0,rf:0,ra:0});e.games.filter(g=>g.status==='Final').forEach(g=>{if(!s[g.home]||!s[g.away])return;s[g.home].rf+=g.homeScore;s[g.home].ra+=g.awayScore;s[g.away].rf+=g.awayScore;s[g.away].ra+=g.homeScore;if(g.homeScore>g.awayScore){s[g.home].w++;s[g.away].l++}else if(g.awayScore>g.homeScore){s[g.away].w++;s[g.home].l++}});return Object.values(s).map(x=>({...x,diff:x.rf-x.ra,pct:(x.w+x.l)?x.w/(x.w+x.l):0})).sort((a,b)=>b.pct-a.pct||b.diff-a.diff||b.rf-a.rf||a.name.localeCompare(b.name))}
+function generateBracket(){const seeds=standings();if(seeds.length<2)return alert('Add teams first.');let size=1;while(size<seeds.length)size*=2;const p=[...seeds];while(p.length<size)p.push({name:'BYE'});const pairs=[];for(let i=0;i<size/2;i++)pairs.push([p[i],p[size-1-i]]);let html='<div class="round"><h3>Round 1</h3>'+pairs.map((x,i)=>`<div class="match"><b>Game ${i+1}</b><br>${x[0].name}<br>vs.<br>${x[1].name}</div>`).join('')+'</div>';let games=pairs.length,round=2;while(games>1){games=Math.ceil(games/2);html+=`<div class="round"><h3>${games===1?'Championship':'Round '+round}</h3>`+Array.from({length:games},()=>'<div class="match">Winner advances here</div>').join('')+'</div>';round++}$('bracketView').innerHTML=html}
+function addExpense(){const e=current(),n=$('expenseName').value.trim(),a=Number($('expenseAmount').value)||0;if(!e||!n||!a)return alert('Enter expense and amount.');e.expenses.push({id:uid(),name:n,amount:a});$('expenseName').value='';$('expenseAmount').value='';persist()}
+function deleteExpense(id){const e=current();if(!e)return;e.expenses=e.expenses.filter(x=>x.id!==id);persist()}
+function exportBackup(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}));a.download='rough-cut-sports-build2-backup.json';a.click()}
+function importBackup(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{db=JSON.parse(r.result);persist();alert('Backup imported.')}catch{alert('Invalid backup file.')}};r.readAsText(f)}
+function exportStandings(){const rows=[['Team','Wins','Losses','Runs For','Runs Against','Run Differential','Win Percentage']];standings().forEach(x=>rows.push([x.name,x.w,x.l,x.rf,x.ra,x.diff,(x.pct*100).toFixed(1)+'%']));const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='standings.csv';a.click()}
+function render(){
+ const e=current();
+ $('eventCards').innerHTML=db.events.length?db.events.map(x=>`<div class="card event-card ${x.id===db.activeEventId?'active-event':''}"><h3>${x.setup.name}</h3><p class="notice">${sportName(x.setup.sport)} • ${x.setup.date||'No date'} • ${x.teams.length} teams</p><div class="actions"><button onclick="openEvent('${x.id}')">Open</button><button class="secondary" onclick="duplicateEvent('${x.id}')">Duplicate</button><button class="danger" onclick="deleteEvent('${x.id}')">Delete</button></div></div>`).join(''):'<div class="card"><p>No events yet.</p></div>';
+ $('noEventDash').classList.toggle('hidden',!!e);$('dashContent').classList.toggle('hidden',!e);$('setupNoEvent').classList.toggle('hidden',!!e);$('setupForm').classList.toggle('hidden',!e);
+ if(!e){$('teamRows').innerHTML='';$('scheduleRows').innerHTML='';$('standingRows').innerHTML='';return}
+ const collected=e.teams.reduce((a,t)=>a+t.paid,0),fees=e.teams.reduce((a,t)=>a+t.fee,0),expenses=e.expenses.reduce((a,x)=>a+x.amount,0);
+ $('dashSport').textContent=sportName(e.setup.sport);$('dashTeams').textContent=e.teams.length;$('dashGames').textContent=e.games.length;$('dashCollected').textContent=money(collected);$('eventTitle').textContent=e.setup.name;$('eventMeta').textContent=[sportName(e.setup.sport),e.setup.date,e.setup.location,e.setup.division,e.setup.format].filter(Boolean).join(' • ');
+ $('eventName').value=e.setup.name;$('eventSport').value=e.setup.sport;$('eventDate').value=e.setup.date;$('eventLocation').value=e.setup.location;$('eventDivision').value=e.setup.division;$('eventFormat').value=e.setup.format;$('gameLength').value=e.setup.gameLength;$('fieldCount').value=e.setup.fieldCount;$('startTime').value=e.setup.startTime;$('eventRules').value=e.setup.rules;
+ $('teamRows').innerHTML=e.teams.map(t=>`<tr><td>${t.name}</td><td>${t.manager}</td><td>${t.city}</td><td>${money(t.fee)}</td><td>${money(t.paid)}</td><td><span class="badge ${t.paid>=t.fee?'good':'bad'}">${t.paid>=t.fee?'Paid':'Due '+money(t.fee-t.paid)}</span></td><td class="no-print"><button class="danger" onclick="deleteTeam('${t.id}')">Delete</button></td></tr>`).join('');
+ const opts='<option value="">Choose team</option>'+e.teams.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');$('manualHome').innerHTML=opts;$('manualAway').innerHTML=opts;
+ $('scheduleRows').innerHTML=e.games.map((g,i)=>`<tr><td>${i+1}</td><td>${g.time}</td><td>${g.field}</td><td>${team(e,g.home)?.name||''} vs ${team(e,g.away)?.name||''}</td><td><span class="badge ${g.status==='Final'?'good':'bluebadge'}">${g.status}</span></td><td class="no-print"><button class="danger" onclick="deleteGame('${g.id}')">Delete</button></td></tr>`).join('');
+ $('scoreGame').innerHTML='<option value="">Choose game</option>'+e.games.map((g,i)=>`<option value="${g.id}">Game ${i+1}: ${team(e,g.home)?.name||''} vs ${team(e,g.away)?.name||''}</option>`).join('');
+ $('standingRows').innerHTML=standings().map((x,i)=>`<tr><td>${i+1}</td><td>${x.name}</td><td>${x.w}</td><td>${x.l}</td><td>${x.rf}</td><td>${x.ra}</td><td>${x.diff}</td><td>${(x.pct*100).toFixed(1)}%</td></tr>`).join('');
+ $('financeCollected').textContent=money(collected);$('financeDue').textContent=money(fees-collected);$('financeProfit').textContent=money(collected-expenses);$('expenseRows').innerHTML=e.expenses.map(x=>`<tr><td>${x.name}</td><td>${money(x.amount)}</td><td class="no-print"><button class="danger" onclick="deleteExpense('${x.id}')">Delete</button></td></tr>`).join('');
+}
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js'));
+render();
+</script>
+</body>
+</html>
