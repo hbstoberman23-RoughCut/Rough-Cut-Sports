@@ -1,1 +1,14 @@
-{"name":"Rough Cut Sports","short_name":"Rough Cut","start_url":"./index.html","display":"standalone","background_color":"#0d0d0d","theme_color":"#e87500","icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icon-512.png","sizes":"512x512","type":"image/png"}]}
+{
+  "name": "Diamond Director",
+  "short_name": "Diamond Director",
+  "description": "Tournament and league management for baseball, fastpitch, and slowpitch.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090909",
+  "theme_color": "#ed7a00",
+  "orientation": "portrait-primary",
+  "icons": [
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ]
+}
