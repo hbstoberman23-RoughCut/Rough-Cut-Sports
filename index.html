@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Diamond Director</title>
+<meta name="theme-color" content="#ed7a00">
+<style>
+:root{--bg:#090909;--panel:#171717;--line:#3a3a3a;--orange:#ed7a00;--text:#f7f7f7;--muted:#aaa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{padding:16px;background:#050505;border-bottom:3px solid var(--orange)}
+.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--orange);color:#111;font-weight:900}
+h1{margin:0;font-size:22px}.sub{color:var(--muted);font-size:12px;margin-top:3px}
+main{max-width:760px;margin:auto;padding:16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+label{display:block;color:var(--muted);font-size:13px;margin:12px 0 5px}
+input,select{width:100%;padding:12px;border:1px solid #4a4a4a;border-radius:8px;background:#0e0e0e;color:#fff;font-size:16px}
+button{margin-top:16px;padding:13px 18px;border:0;border-radius:8px;background:var(--orange);color:#fff;font-weight:800;font-size:16px}
+button.secondary{background:#333}button.danger{background:#983737}
+.event{padding:14px;border:1px solid #444;border-radius:10px;background:#202020;margin-top:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.message{margin-top:12px;color:#ffb466;font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">DD</div>
+    <div><h1>Diamond Director</h1><div class="sub">A Rough Cut Technologies Product</div></div>
+  </div>
+</header>
+<main>
+  <div class="card">
+    <h2>Create New Event</h2>
+
+    <label>Event Type</label>
+    <select id="type">
+      <option value="Tournament">Tournament</option>
+      <option value="League">League</option>
+    </select>
+
+    <label>Event Name</label>
+    <input id="name" value="3rd Annual Labor Day Tournament">
+
+    <label>Sport</label>
+    <select id="sport">
+      <option>Slowpitch</option>
+      <option>Fastpitch</option>
+      <option>Baseball</option>
+    </select>
+
+    <label>Date</label>
+    <input id="date" type="date" value="2026-09-05">
+
+    <label>Location</label>
+    <input id="location" value="Edinburg Fields">
+
+    <button id="createBtn" type="button">Create Event</button>
+    <div id="message" class="message"></div>
+  </div>
+
+  <div class="card">
+    <h2>My Events</h2>
+    <div id="events"></div>
+  </div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var KEY = "diamondDirectorEventsV1";
+  var events = [];
+
+  function escapeHtml(value){
+    return String(value || "")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#039;");
+  }
+
+  function load(){
+    try{
+      var saved = localStorage.getItem(KEY);
+      events = saved ? JSON.parse(saved) : [];
+      if(!Array.isArray(events)) events = [];
+    }catch(error){
+      events = [];
+      document.getElementById("message").textContent = "Could not read saved events.";
+    }
+  }
+
+  function save(){
+    localStorage.setItem(KEY, JSON.stringify(events));
+  }
+
+  function render(){
+    var box = document.getElementById("events");
+    if(!events.length){
+      box.innerHTML = "<p>No events yet.</p>";
+      return;
+    }
+    box.innerHTML = events.map(function(event, index){
+      return '<div class="event">' +
+        '<strong>' + escapeHtml(event.name) + '</strong><br>' +
+        escapeHtml(event.type) + ' • ' +
+        escapeHtml(event.sport) + ' • ' +
+        escapeHtml(event.date) + ' • ' +
+        escapeHtml(event.location) +
+        '<div class="actions"><button class="danger" type="button" onclick="deleteEvent(' + index + ')">Delete</button></div>' +
+      '</div>';
+    }).join("");
+  }
+
+  window.deleteEvent = function(index){
+    events.splice(index,1);
+    save();
+    render();
+  };
+
+  document.getElementById("createBtn").addEventListener("click", function(){
+    var message = document.getElementById("message");
+    var name = document.getElementById("name").value.trim();
+
+    if(!name){
+      message.textContent = "Enter an event name.";
+      return;
+    }
+
+    try{
+      events.push({
+        id: "event-" + Date.now() + "-" + Math.floor(Math.random()*1000000),
+        type: document.getElementById("type").value,
+        name: name,
+        sport: document.getElementById("sport").value,
+        date: document.getElementById("date").value,
+        location: document.getElementById("location").value.trim()
+      });
+      save();
+      render();
+      message.textContent = "Event created successfully.";
+    }catch(error){
+      message.textContent = "Create failed: " + error.message;
+    }
+  });
+
+  load();
+  render();
+})();
+</script>
+</body>
+</html>
