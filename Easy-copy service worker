@@ -1,4 +1,4 @@
-const CACHE = 'rough-cut-sports-build2-v2';
+const CACHE = 'rough-cut-sports-build2-v3';
 
 const FILES = [
   './',
