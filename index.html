@@ -147,7 +147,19 @@ table{width:100%;border-collapse:collapse}th,td{border:1px solid var(--line);pad
 </main>
 
 <script>
-const $=id=>document.getElementById(id), uid=()=>crypto.randomUUID();
+const $ = id => document.getElementById(id);
+
+const uid = () => {
+
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+
+    return window.crypto.randomUUID();
+
+  }
+
+  return 'event-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+
+};
 let db=JSON.parse(localStorage.getItem('roughCutSportsBuild2'))||{activeEventId:null,events:[]};
 let currentGameId=null;
 function persist(){localStorage.setItem('roughCutSportsBuild2',JSON.stringify(db));render()}
